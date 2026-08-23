@@ -15,7 +15,7 @@ A NeoForge 1.21.1 compatibility addon that renders configured TaCZ weapon lights
 
 Press **L** to toggle the local player's weapon light.
 
-The original **Artificial Beam Source** remains available as a TaCZ compatibility test. The library also adds three independent blocks to the Functional Blocks tab:
+The library adds three independent test blocks to the Functional Blocks tab:
 
 ```text
 /give @s veilvolumelights:test_point_light
@@ -138,7 +138,7 @@ git clone --recurse-submodules https://github.com/CappleApple/veil-lights-for-ta
 The build produces two independent client artifacts:
 
 ```text
-build/libs/veiltaczlights-1.0.jar
+build/libs/veiltaczlights-1.0.1.jar
 veil-volume-lights/build/libs/veilvolumelights-1.0.jar
 ```
 

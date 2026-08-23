@@ -2,7 +2,6 @@ package com.cappleapple.veiltaczlights;
 
 import com.cappleapple.veiltaczlights.client.ClientBootstrap;
 import com.cappleapple.veiltaczlights.config.DatapackFlashlightProfileLoader;
-import com.cappleapple.veiltaczlights.content.ModContent;
 import com.cappleapple.veiltaczlights.network.NetworkHandler;
 import com.mojang.logging.LogUtils;
 import net.neoforged.api.distmarker.Dist;
@@ -19,7 +18,6 @@ public final class VeilTaczLights {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public VeilTaczLights(IEventBus modBus, ModContainer container) {
-        ModContent.register(modBus);
         modBus.addListener(NetworkHandler::register);
         NeoForge.EVENT_BUS.addListener(DatapackFlashlightProfileLoader::register);
         NeoForge.EVENT_BUS.addListener(DatapackFlashlightProfileLoader::sync);

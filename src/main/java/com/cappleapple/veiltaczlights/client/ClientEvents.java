@@ -2,7 +2,6 @@ package com.cappleapple.veiltaczlights.client;
 
 import com.cappleapple.veiltaczlights.VeilTaczLights;
 import com.cappleapple.veiltaczlights.config.FlashlightProfileRegistry;
-import com.cappleapple.veiltaczlights.content.ArtificialBeamSourceTracker;
 import com.cappleapple.veiltaczlights.lighting.VeilFlashlightManager;
 import com.cappleapple.veiltaczlights.lighting.FlashlightFlareRenderer;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -44,14 +43,6 @@ public final class ClientEvents {
                             enabled ? "message.veiltaczlights.on" : "message.veiltaczlights.off"), true);
                 }
             }
-            Minecraft minecraft = Minecraft.getInstance();
-            if (minecraft.level == null) {
-                VeilFlashlightManager.syncArtificialSources(java.util.List.of());
-            } else {
-                VeilFlashlightManager.syncArtificialSources(
-                        ArtificialBeamSourceTracker.active(minecraft.level)
-                );
-            }
         }
 
         @SubscribeEvent
@@ -72,7 +63,6 @@ public final class ClientEvents {
         @SubscribeEvent
         public static void logout(ClientPlayerNetworkEvent.LoggingOut event) {
             VeilFlashlightManager.clear();
-            ArtificialBeamSourceTracker.clear();
             FlashlightProfileRegistry.clearDatapackProfiles();
         }
 
@@ -80,7 +70,6 @@ public final class ClientEvents {
         public static void unload(LevelEvent.Unload event) {
             if (event.getLevel().isClientSide()) {
                 VeilFlashlightManager.clear();
-                ArtificialBeamSourceTracker.clear();
             }
         }
     }

@@ -2,6 +2,5 @@
   "key.veiltaczlights.toggle": "Toggle weapon flashlight",
   "key.categories.veiltaczlights": "Veil Lights for TaCZ",
   "message.veiltaczlights.on": "Weapon flashlight on",
-  "message.veiltaczlights.off": "Weapon flashlight off",
-  "block.veiltaczlights.artificial_beam_source": "Artificial Beam Source"
+  "message.veiltaczlights.off": "Weapon flashlight off"
 }

@@ -2,7 +2,6 @@ package com.cappleapple.veiltaczlights.lighting;
 
 import com.cappleapple.veiltaczlights.VeilTaczLights;
 import com.cappleapple.veiltaczlights.config.ClientConfig;
-import com.cappleapple.veiltaczlights.content.ArtificialBeamSourceTracker;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -15,29 +14,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public final class VeilFlashlightManager {
     private static final Map<UUID, FlashlightLightInstance> LIGHTS = new HashMap<>();
     private static final Map<UUID, PendingUpdate> PENDING = new HashMap<>();
     private static final Map<UUID, FlareSnapshot> FLARES = new HashMap<>();
-    private static final Map<Long, ArtificialBeamSourceTracker.Source> ARTIFICIAL_SOURCES = new HashMap<>();
-    private static final Map<Long, FlashlightLightInstance> ARTIFICIAL_LIGHTS = new HashMap<>();
-    private static final FlashlightProfile ARTIFICIAL_PROFILE = new FlashlightProfile(
-            ResourceLocation.fromNamespaceAndPath(VeilTaczLights.MOD_ID, "artificial_beam_source"),
-            "artificial_beam_source",
-            40.0F,
-            1.15F,
-            FlashlightProfile.fullConeAngleForWidth(40.0F, 14.0F),
-            FlashlightProfile.fullConeAngleForWidth(40.0F, 6.5F),
-            0xF2 / 255.0F,
-            0xFA / 255.0F,
-            1.0F,
-            true,
-            0.85F
-    );
     private static int frame;
     private static boolean localEnabled = true;
 
@@ -119,8 +101,6 @@ public final class VeilFlashlightManager {
         }
         PENDING.clear();
 
-        updateArtificialLights();
-
         Iterator<FlashlightLightInstance> iterator = LIGHTS.values().iterator();
         while (iterator.hasNext()) {
             FlashlightLightInstance instance = iterator.next();
@@ -148,11 +128,8 @@ public final class VeilFlashlightManager {
     public static void clear() {
         PENDING.clear();
         FLARES.clear();
-        ARTIFICIAL_SOURCES.clear();
         LIGHTS.values().forEach(FlashlightLightInstance::remove);
         LIGHTS.clear();
-        ARTIFICIAL_LIGHTS.values().forEach(FlashlightLightInstance::remove);
-        ARTIFICIAL_LIGHTS.clear();
     }
 
     private static void remove(UUID ownerId) {
@@ -164,48 +141,6 @@ public final class VeilFlashlightManager {
 
     public static Collection<FlareSnapshot> activeThirdPersonFlares() {
         return Collections.unmodifiableCollection(FLARES.values());
-    }
-
-    public static void syncArtificialSources(Collection<ArtificialBeamSourceTracker.Source> sources) {
-        ARTIFICIAL_SOURCES.clear();
-        sources.forEach(source -> ARTIFICIAL_SOURCES.put(source.pos().asLong(), source));
-    }
-
-    private static void updateArtificialLights() {
-        if (!ClientConfig.ENABLED.get()) {
-            ARTIFICIAL_LIGHTS.values().forEach(FlashlightLightInstance::remove);
-            ARTIFICIAL_LIGHTS.clear();
-            return;
-        }
-
-        for (Map.Entry<Long, ArtificialBeamSourceTracker.Source> entry : ARTIFICIAL_SOURCES.entrySet()) {
-            long key = entry.getKey();
-            ArtificialBeamSourceTracker.Source source = entry.getValue();
-            Vector3f forward = new Vector3f(
-                    source.facing().getStepX(),
-                    source.facing().getStepY(),
-                    source.facing().getStepZ()
-            );
-            Vector3f position = new Vector3f(
-                    source.pos().getX() + 0.5F,
-                    source.pos().getY() + 0.5F,
-                    source.pos().getZ() + 0.5F
-            ).fma(0.52F, forward);
-            FlashlightLightInstance instance = ARTIFICIAL_LIGHTS.computeIfAbsent(
-                    key,
-                    ignored -> new FlashlightLightInstance(new UUID(0x4152544946494349L, key))
-            );
-            instance.update(ARTIFICIAL_PROFILE, position, forward, new Vector3f(0.0F, 1.0F, 0.0F));
-        }
-
-        Set<Long> activeKeys = ARTIFICIAL_SOURCES.keySet().stream().collect(Collectors.toSet());
-        ARTIFICIAL_LIGHTS.entrySet().removeIf(entry -> {
-            if (activeKeys.contains(entry.getKey())) {
-                return false;
-            }
-            entry.getValue().remove();
-            return true;
-        });
     }
 
     public record FlareSnapshot(Vector3f position, Vector3f forward, FlashlightProfile profile) {
