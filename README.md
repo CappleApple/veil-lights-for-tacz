@@ -16,16 +16,6 @@ A NeoForge 1.21.1 compatibility addon that renders configured TaCZ weapon lights
 
 Press **L** to toggle the local player's weapon light.
 
-The library adds three independent test blocks to the Functional Blocks tab:
-
-```text
-/give @s veilvolumelights:test_point_light
-/give @s veilvolumelights:test_spot_light
-/give @s veilvolumelights:test_area_light
-```
-
-Point lights radiate in every direction. Spot and area lights point away from the placer; the area block emits from a 4-by-2 rectangular plane. All three use white light so colored glass, clear glass, water, attenuation, and overlapping sources can be compared without source-color contamination.
-
 The client config includes `thirdPersonFlare`, `thirdPersonFlareSize`, and `thirdPersonFlareIntensity`. Flare distance uses the existing `thirdPersonLightDistance` limit.
 
 ## Configuration
