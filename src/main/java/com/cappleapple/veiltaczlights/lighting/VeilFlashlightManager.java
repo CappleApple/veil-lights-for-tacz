@@ -20,8 +20,8 @@ public final class VeilFlashlightManager {
     private static final Map<UUID, FlashlightLightInstance> LIGHTS = new HashMap<>();
     private static final Map<UUID, PendingUpdate> PENDING = new HashMap<>();
     private static final Map<UUID, FlareSnapshot> FLARES = new HashMap<>();
+    private static final FlashlightVisibilityState VISIBILITY = new FlashlightVisibilityState();
     private static int frame;
-    private static boolean localEnabled = true;
 
     public static void beginFrame() {
         frame++;
@@ -46,7 +46,8 @@ public final class VeilFlashlightManager {
         if (!firstPerson && !ClientConfig.THIRD_PERSON.get()) {
             return;
         }
-        if (minecraft.player != null && owner.getUUID().equals(minecraft.player.getUUID()) && !localEnabled) {
+        UUID localPlayerId = minecraft.player == null ? null : minecraft.player.getUUID();
+        if (!VISIBILITY.isEnabled(owner.getUUID(), localPlayerId)) {
             return;
         }
 
@@ -113,8 +114,8 @@ public final class VeilFlashlightManager {
     }
 
     public static boolean toggleLocal() {
-        localEnabled = !localEnabled;
-        if (!localEnabled) {
+        boolean enabled = VISIBILITY.toggleLocal();
+        if (!enabled) {
             Minecraft minecraft = Minecraft.getInstance();
             if (minecraft.player != null) {
                 PENDING.remove(minecraft.player.getUUID());
@@ -122,7 +123,22 @@ public final class VeilFlashlightManager {
                 remove(minecraft.player.getUUID());
             }
         }
-        return localEnabled;
+        return enabled;
+    }
+
+    public static void applySynchronizedState(UUID playerId, boolean enabled) {
+        Minecraft minecraft = Minecraft.getInstance();
+        UUID localPlayerId = minecraft.player == null ? null : minecraft.player.getUUID();
+        VISIBILITY.accept(playerId, enabled, localPlayerId);
+        if (!enabled) {
+            PENDING.remove(playerId);
+            FLARES.remove(playerId);
+            remove(playerId);
+        }
+    }
+
+    public static void resetSynchronizedStates() {
+        VISIBILITY.clearRemote();
     }
 
     public static void clear() {

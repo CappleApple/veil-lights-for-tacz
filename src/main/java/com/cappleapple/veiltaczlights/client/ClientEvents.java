@@ -36,9 +36,10 @@ public final class ClientEvents {
         @SubscribeEvent
         public static void clientTick(ClientTickEvent.Post event) {
             while (TOGGLE.consumeClick()) {
-                boolean enabled = VeilFlashlightManager.toggleLocal();
                 Minecraft minecraft = Minecraft.getInstance();
                 if (minecraft.player != null) {
+                    boolean enabled = VeilFlashlightManager.toggleLocal();
+                    ClientFlashlightNetwork.sendState(enabled);
                     minecraft.player.displayClientMessage(Component.translatable(
                             enabled ? "message.veiltaczlights.on" : "message.veiltaczlights.off"), true);
                 }
@@ -63,6 +64,7 @@ public final class ClientEvents {
         @SubscribeEvent
         public static void logout(ClientPlayerNetworkEvent.LoggingOut event) {
             VeilFlashlightManager.clear();
+            VeilFlashlightManager.resetSynchronizedStates();
             FlashlightProfileRegistry.clearDatapackProfiles();
         }
 

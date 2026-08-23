@@ -2,6 +2,7 @@ package com.cappleapple.veiltaczlights;
 
 import com.cappleapple.veiltaczlights.client.ClientBootstrap;
 import com.cappleapple.veiltaczlights.config.DatapackFlashlightProfileLoader;
+import com.cappleapple.veiltaczlights.network.FlashlightStateSynchronizer;
 import com.cappleapple.veiltaczlights.network.NetworkHandler;
 import com.mojang.logging.LogUtils;
 import net.neoforged.api.distmarker.Dist;
@@ -21,6 +22,10 @@ public final class VeilTaczLights {
         modBus.addListener(NetworkHandler::register);
         NeoForge.EVENT_BUS.addListener(DatapackFlashlightProfileLoader::register);
         NeoForge.EVENT_BUS.addListener(DatapackFlashlightProfileLoader::sync);
+        NeoForge.EVENT_BUS.addListener(FlashlightStateSynchronizer::playerLoggedIn);
+        NeoForge.EVENT_BUS.addListener(FlashlightStateSynchronizer::playerLoggedOut);
+        NeoForge.EVENT_BUS.addListener(FlashlightStateSynchronizer::startTracking);
+        NeoForge.EVENT_BUS.addListener(FlashlightStateSynchronizer::serverStopped);
         if (FMLEnvironment.dist == Dist.CLIENT) {
             ClientBootstrap.initialize(modBus, container);
         }

@@ -1,6 +1,6 @@
 # Veil Lights for TaCZ
 
-A NeoForge 1.21.1 compatibility addon that renders configured TaCZ weapon lights through the separate [Veil Volume Lights](https://github.com/CappleApple/veil-volume-lights) library. Client installations need both `veiltaczlights` and `veilvolumelights`; installing only the TaCZ addon JAR on a server remains optional and enables datapack-profile synchronization. TaCZ integration code is under `com.cappleapple.veiltaczlights`, while generic rendering lives under `com.cappleapple.veilvolumelights` in the library artifact.
+A NeoForge 1.21.1 compatibility addon that renders configured TaCZ weapon lights through the separate [Veil Volume Lights](https://github.com/CappleApple/veil-volume-lights) library. Client installations need both `veiltaczlights` and `veilvolumelights`; installing only the TaCZ addon JAR on a server remains optional and enables datapack-profile and multiplayer flashlight-state synchronization. TaCZ integration code is under `com.cappleapple.veiltaczlights`, while generic rendering lives under `com.cappleapple.veilvolumelights` in the library artifact.
 
 ## What it does
 
@@ -8,6 +8,7 @@ A NeoForge 1.21.1 compatibility addon that renders configured TaCZ weapon lights
 - Updates one reusable library `VolumeLight.Spot` per rendered player every frame.
 - Supports first-person and third-person rendering, distance-culls remote lights, and removes stale lights at the end of the frame and on disconnect/world unload.
 - Renders a colored, camera-facing lens flare at active third-person emitters. The flare is depth-tested, brightest while looking into the lamp, faint from the side, and never drawn over the first-person weapon view.
+- Replicates the **L**-key flashlight state through the server so other modded clients see remote beams and flares turn on and off with their owner.
 - Uses the library's native Veil point, spot, and rectangular area-light handles. TaCZ submits only spotlights.
 - Preserves opaque-only world depth and applies continuous, subtractive transparent-medium transmission before stopping at opaque geometry.
 - Automatically recognizes TaCZ `LASER` attachments whose models contain a flashlight-like emitter bone, with explicit third-party profiles available in TOML.
@@ -57,7 +58,7 @@ For example, `data/addonpack/veiltaczlights/attachment_profiles/weapon_light.jso
 
 `length` is the maximum distance in blocks. `width` and optional `inner_width` are full beam diameters in blocks at that distance, which the addon converts to Veil cone angles. `color` accepts `#RRGGBB` or a three-number RGB array. Datapack profiles take priority and reload with `/reload`.
 
-In singleplayer, the integrated server loads and synchronizes these files automatically. For a dedicated multiplayer server, install the addon JAR on the server to synchronize server datapack profiles to clients. TaCZ and Veil are not required server-side, and clients can still join servers that do not install this addon; in that case only the client's legacy TOML fallback is available.
+In singleplayer, the integrated server loads and synchronizes these files and flashlight states automatically. For a dedicated multiplayer server, install the addon JAR on the server to synchronize server datapack profiles and player flashlight toggles to clients. TaCZ and Veil are not required server-side, and clients can still join servers that do not install this addon; in that case only the client's legacy TOML fallback is available and remote recognized lights default to on.
 
 The addon still creates `config/veiltaczlights-attachments.toml` as a legacy/local fallback when no datapack profile exists for an attachment:
 
@@ -103,7 +104,7 @@ handle.free();
 
 The implementation targets the MUKSC TaCZ NeoForge 1.21.1 port `1.1.8-hotfix-r6` and Veil `4.4.1`.
 
-TaCZ's public API exposes attachment ID/category and its renderer exposes the final animated model hierarchy, but this port has no flashlight state API or networked flashlight toggle. It renders laser attachments continuously. Consequently this addon's client rendering owns the local **L** toggle; remote recognized lights appear while their attachment is rendered. A future TaCZ state API can be connected in `compat/tacz` without changing Veil lifecycle code.
+TaCZ's public API exposes attachment ID/category and its renderer exposes the final animated model hierarchy, but this port has no flashlight state API and renders laser attachments continuously. Consequently this addon owns the **L** toggle and synchronizes it through its optional server installation. The server stores only the current enabled flag for each connected player and broadcasts changes to clients that support the payload; each client still constructs the actual Veil light locally from TaCZ's replicated model transform. A future TaCZ state API can be connected in `compat/tacz` without changing Veil lifecycle code.
 
 TaCZ also does not create competing dynamic/local illumination in the inspected 1.21.1 source, so no unrelated TaCZ rendering is disabled. Its laser beam remains intact.
 
@@ -138,7 +139,7 @@ git clone --recurse-submodules https://github.com/CappleApple/veil-lights-for-ta
 The build produces two independent client artifacts:
 
 ```text
-build/libs/veiltaczlights-1.0.2.jar
+build/libs/veiltaczlights-1.1.jar
 veil-volume-lights/build/libs/veilvolumelights-1.0.jar
 ```
 

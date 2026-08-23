@@ -11,6 +11,16 @@ public final class NetworkHandler {
                 FlashlightProfileSyncPayload.STREAM_CODEC,
                 FlashlightProfileSyncPayload::handle
         );
+        registrar.playToServer(
+                FlashlightTogglePayload.TYPE,
+                FlashlightTogglePayload.STREAM_CODEC,
+                FlashlightTogglePayload::handle
+        );
+        registrar.playToClient(
+                FlashlightStatePayload.TYPE,
+                FlashlightStatePayload.STREAM_CODEC,
+                FlashlightStatePayload::handle
+        );
     }
 
     private NetworkHandler() {
