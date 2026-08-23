@@ -1,0 +1,29 @@
+# Legacy/local attachment fallback. Datapack JSON profiles take priority.
+# Unknown TaCZ LASER attachments are also recognized automatically when their
+# rendered model contains a bone named flashlight, flash, light, or emitter
+# (optionally suffixed with _illuminated or a number).
+
+[attachments."tacz:laser_peq15"]
+enabled = true
+emitterBone = "flashlight"
+
+[attachments."tacz:laser_peq6"]
+enabled = true
+emitterBone = "flash_illuminated"
+
+[attachments."tacz:laser_nightstick"]
+enabled = true
+emitterBone = "laser_illuminated"
+
+# Example third-party profile:
+# [attachments."addonpack:weapon_light"]
+# enabled = true
+# emitterBone = "flashlight"
+# range = 40.0
+# intensity = 1.2
+# outerConeAngle = 30.0
+# red = 1.0
+# green = 0.97
+# blue = 0.90
+# shadows = true
+# volumetricStrength = 0.0

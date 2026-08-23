@@ -1,0 +1,10 @@
+.gradle/
+build/
+run/
+run-server/
+logs/
+.idea/
+*.iml
+.research/
+out/
+/assets/

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "veiltaczlights:block/artificial_beam_source"
+    },
+    "facing=east": {
+      "model": "veiltaczlights:block/artificial_beam_source",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "veiltaczlights:block/artificial_beam_source",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "veiltaczlights:block/artificial_beam_source",
+      "y": 270
+    }
+  }
+}

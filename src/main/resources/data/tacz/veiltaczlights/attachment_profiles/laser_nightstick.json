@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "emitter_bone": "laser_illuminated",
+  "beam": {
+    "length": 24.0,
+    "width": 18.0,
+    "inner_width": 9.0,
+    "color": "#FFF1D6",
+    "intensity": 0.9,
+    "shadows": true,
+    "volumetric_strength": 0.65
+  }
+}

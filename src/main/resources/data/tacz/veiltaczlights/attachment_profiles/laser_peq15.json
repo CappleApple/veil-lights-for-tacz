@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "emitter_bone": "flashlight",
+  "beam": {
+    "length": 40.0,
+    "width": 14.0,
+    "inner_width": 6.5,
+    "color": "#F2FAFF",
+    "intensity": 1.15,
+    "shadows": true,
+    "volumetric_strength": 0.85
+  }
+}

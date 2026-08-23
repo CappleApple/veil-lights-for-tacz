@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "emitter_bone": "flash_illuminated",
+  "beam": {
+    "length": 34.0,
+    "width": 16.0,
+    "inner_width": 8.0,
+    "color": "#FFF8EA",
+    "intensity": 1.05,
+    "shadows": true,
+    "volumetric_strength": 0.75
+  }
+}
