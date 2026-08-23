@@ -7,4 +7,10 @@ pluginManagement {
 
 rootProject.name = 'veil-tacz-lights'
 
+def nestedLibraryDir = file('veil-volume-lights')
+def siblingLibraryDir = file('../veil-volume-lights')
+
 include 'veil-volume-lights'
+if (!nestedLibraryDir.isDirectory() && siblingLibraryDir.isDirectory()) {
+    project(':veil-volume-lights').projectDir = siblingLibraryDir
+}

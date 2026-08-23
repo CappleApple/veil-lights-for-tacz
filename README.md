@@ -138,7 +138,7 @@ git clone --recurse-submodules https://github.com/CappleApple/veil-lights-for-ta
 The build produces two independent client artifacts:
 
 ```text
-build/libs/veiltaczlights-1.0.1.jar
+build/libs/veiltaczlights-1.0.2.jar
 veil-volume-lights/build/libs/veilvolumelights-1.0.jar
 ```
 
