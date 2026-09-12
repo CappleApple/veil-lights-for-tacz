@@ -1,34 +1,47 @@
 # Veil Lights for TaCZ
 
-A NeoForge 1.21.1 compatibility addon that renders configured TaCZ weapon lights through the separate [Veil Volume Lights](https://github.com/CappleApple/veil-volume-lights) library. Client installations need both `veiltaczlights` and `veilvolumelights`; installing only the TaCZ addon JAR on a server remains optional and enables datapack-profile and multiplayer flashlight-state synchronization. TaCZ integration code is under `com.cappleapple.veiltaczlights`, while generic rendering lives under `com.cappleapple.veilvolumelights` in the library artifact.
+Veil Lights for TaCZ adds proper Veil-powered weapon lights to TaCZ on NeoForge 1.21.1.
 
-## What it does
+Instead of faking a flashlight as a simple texture or screen effect, the addon follows the actual animated attachment on the gun and feeds that transform into [Veil Volume Lights](https://github.com/CappleApple/veil-volume-lights). The beam therefore follows ADS, hipfire, reloads, recoil, sprinting, inspection animations, and third-person weapon movement.
 
-- Captures the real animated TaCZ attachment bone matrix during rendering. Hipfire, ADS, reload, sprint, inspect, sway, recoil, custom animations, and per-gun attachment placement therefore flow through TaCZ's own transform hierarchy.
-- Updates one reusable library `VolumeLight.Spot` per rendered player every frame.
-- Supports first-person and third-person rendering, distance-culls remote lights, and removes stale lights at the end of the frame and on disconnect/world unload.
-- Renders a colored, camera-facing lens flare at active third-person emitters. The flare is depth-tested, brightest while looking into the lamp, faint from the side, and never drawn over the first-person weapon view.
-- Replicates the **L**-key flashlight state through the server so other modded clients see remote beams and flares turn on and off with their owner.
-- Uses the library's native Veil point, spot, and rectangular area-light handles. TaCZ submits only spotlights.
-- Preserves opaque-only world depth and applies continuous, subtractive transparent-medium transmission before stopping at opaque geometry.
-- Automatically recognizes TaCZ `LASER` attachments whose models contain a flashlight-like emitter bone, with explicit third-party profiles available in TOML.
-- Loads per-attachment beam profiles from datapack JSON, with bundled defaults for the standard PEQ-15, PEQ-6, and Nightstick attachments. Nightstick needs an explicit profile because TaCZ declares it only as a laser and supplies no flashlight marker.
+Press **L** to toggle your weapon light.
 
-Press **L** to toggle the local player's weapon light.
+## Requirements
 
-The client config includes `thirdPersonFlare`, `thirdPersonFlareSize`, and `thirdPersonFlareIntensity`. Flare distance uses the existing `thirdPersonLightDistance` limit.
+Client:
 
-## Configuration
+- Minecraft 1.21.1
+- NeoForge
+- TaCZ
+- Veil
+- Veil Volume Lights
 
-NeoForge creates `config/veiltaczlights-client.toml` for global fallback behavior. Bounds are enforced for every numeric option.
+Installing this addon on a dedicated server is optional, but recommended for multiplayer. The server copy handles synchronized flashlight state and datapack-defined attachment profiles. TaCZ and Veil themselves do not need to be installed server-side for that synchronization.
 
-Attachment profiles are datapack files at:
+## What it supports
+
+- First-person and third-person flashlights
+- Animated attachment transforms from TaCZ
+- Remote-player flashlight state in multiplayer
+- Configurable beam length, width, color, intensity, shadows, and volumetric strength
+- Third-person lens flares
+- Datapack profiles for addon weapon packs
+- Automatic recognition of suitable TaCZ laser attachments when they expose a flashlight-style emitter bone
+- Local TOML fallback profiles for attachments without datapack definitions
+
+The addon only adds lighting. TaCZ's normal laser rendering is left alone.
+
+## Attachment profiles
+
+The preferred way to configure third-party attachments is with datapacks.
+
+Profiles live at:
 
 ```text
 data/<attachment namespace>/veiltaczlights/attachment_profiles/<attachment path>.json
 ```
 
-For example, `data/addonpack/veiltaczlights/attachment_profiles/weapon_light.json` configures `addonpack:weapon_light`:
+Example:
 
 ```json
 {
@@ -46,11 +59,27 @@ For example, `data/addonpack/veiltaczlights/attachment_profiles/weapon_light.jso
 }
 ```
 
-`length` is the maximum distance in blocks. `width` and optional `inner_width` are full beam diameters in blocks at that distance, which the addon converts to Veil cone angles. `color` accepts `#RRGGBB` or a three-number RGB array. Datapack profiles take priority and reload with `/reload`.
+`length` is measured in blocks. `width` and `inner_width` describe the beam diameter at that distance; the addon converts them to the cone angles Veil needs.
 
-In singleplayer, the integrated server loads and synchronizes these files and flashlight states automatically. For a dedicated multiplayer server, install the addon JAR on the server to synchronize server datapack profiles and player flashlight toggles to clients. TaCZ and Veil are not required server-side, and clients can still join servers that do not install this addon; in that case only the client's legacy TOML fallback is available and remote recognized lights default to on.
+Profiles reload with `/reload` and take priority over the legacy local TOML configuration.
 
-The addon still creates `config/veiltaczlights-attachments.toml` as a legacy/local fallback when no datapack profile exists for an attachment:
+Bundled defaults are included for the standard PEQ-15, PEQ-6, and Nightstick attachments.
+
+## Local fallback configuration
+
+Client-wide settings are written to:
+
+```text
+config/veiltaczlights-client.toml
+```
+
+Attachment-specific fallback entries are written to:
+
+```text
+config/veiltaczlights-attachments.toml
+```
+
+Example:
 
 ```toml
 [attachments."addonpack:weapon_light"]
@@ -67,70 +96,68 @@ shadows = true
 volumetricStrength = 0.0
 ```
 
-Set `emitterBone = "@attachment"` only for a pack whose attachment origin itself is authored at the lamp. Set `enabled = false` to override automatic recognition for an attachment.
+Use `enabled = false` when an automatically detected attachment should not act as a flashlight.
 
-The bundled JSON defaults use a clearly visible volumetric strength. Veil Volume Lights excludes transparent surfaces from the terminating depth snapshot, coalesces adjacent identical media, and integrates the actual distance traveled inside each volume. Colored media multiply their wavelength transmission along a light path, while separate light sources remain framebuffer-additive. The same behavior applies to point, spot, and area lights.
+## Multiplayer
 
-## Veil Volume Lights library
+With the addon installed on the server, pressing **L** sends the player's flashlight state through the server so other modded clients see the same result.
 
-The reusable library is built from `veil-volume-lights/` and exposes three snapshot definitions plus a persistent handle:
+The server also distributes its datapack attachment profiles to clients. Without the server addon, local lights still work, but remote-state/profile behavior falls back to the client's local information.
 
-```java
-VolumeLightHandle handle = VeilVolumeLights.create(
-        new VolumeLight.Point(position, color, intensity, range, shadows, volumetricStrength)
-);
+## Third-person flare
 
-handle.update(new VolumeLight.Spot(
-        position, forward, up, color, intensity, range,
-        outerConeDegrees, innerConeDegrees, shadows, volumetricStrength
-));
+Active third-person lights can draw a small lens flare at the lamp itself. It is strongest when looking toward the emitter and fades from the side.
 
-handle.free();
+The relevant client options are:
+
+```text
+thirdPersonFlare
+thirdPersonFlareSize
+thirdPersonFlareIntensity
+thirdPersonLightDistance
 ```
 
-`VolumeLight.Area` additionally accepts emitter width, height, and spread angle. Creating or updating handles should happen on the client render thread; integrations own their handle lifecycle. The library owns all Veil shader overrides, framebuffer hooks, opaque-depth capture, transparent-medium scanning, and GPU upload.
+The flare is not drawn over the first-person weapon view.
 
-## Integration details and honest API limits
+## How attachment tracking works
 
-The implementation targets the MUKSC TaCZ NeoForge 1.21.1 port `1.1.8-hotfix-r6` and Veil `4.4.1`.
+TaCZ already knows the final animated transform of every attachment. The addon reads the configured emitter bone after TaCZ has applied the gun, animation, and attachment hierarchy, then converts that transform into a world-space position and direction for the Veil spotlight.
 
-TaCZ's public API exposes attachment ID/category and its renderer exposes the final animated model hierarchy, but this port has no flashlight state API and renders laser attachments continuously. Consequently this addon owns the **L** toggle and synchronizes it through its optional server installation. The server stores only the current enabled flag for each connected player and broadcasts changes to clients that support the payload; each client still constructs the actual Veil light locally from TaCZ's replicated model transform. A future TaCZ state API can be connected in `compat/tacz` without changing Veil lifecycle code.
+That is why the light follows custom animations without needing a separate animation table in this mod.
 
-TaCZ also does not create competing dynamic/local illumination in the inspected 1.21.1 source, so no unrelated TaCZ rendering is disabled. Its laser beam remains intact.
+If an attachment does not expose a usable emitter bone, give it an explicit profile.
 
-TaCZ enables stencil rendering by upgrading Minecraft's main depth attachment to `DEPTH24_STENCIL8`. Veil Volume Lights centrally supplies the matching depth-stencil framebuffer overrides and first-person composite guard, so integrations do not each patch Veil independently.
+## Veil Volume Lights
 
-Veil 4.4.1 exposes voxel occlusion rather than a per-light shadow-map resolution. `shadows` maps to that supported feature; no fake shadow-resolution option is presented.
+The generic light implementation lives in the separate Veil Volume Lights library. This addon only handles TaCZ-specific attachment discovery, transforms, profiles, and flashlight state.
 
-The transform hook is intentionally narrow:
+The library supplies point, spot, and area lights; this addon currently uses spotlights.
 
-1. `BedrockAttachmentModel.render` establishes the attachment/gun/render-owner context.
-2. `BedrockPart.translateAndRotateAndScale` captures the configured emitter after TaCZ applies the complete parent hierarchy.
-3. The resulting camera-relative matrix is converted to a world position plus forward/up basis.
-4. `VeilFlashlightManager` updates or removes a persistent Veil Volume Lights spotlight handle.
+## Target versions
 
-If an attachment lacks a recognized/configured emitter bone, it is skipped. Debug mode logs its resolved gun, attachment, bone, position, forward vector, and Veil handle state at most once per second per player.
+The current integration targets the MUKSC TaCZ NeoForge 1.21.1 port (`1.1.8-hotfix-r6`) and Veil 4.4.1.
 
-## Development
+TaCZ does not currently expose a flashlight-state API in that port, which is why this addon owns the **L** toggle. If TaCZ exposes one later, the compatibility layer can use it without changing the lighting library.
 
-Requires Java 21.
+## Building from source
 
 Clone with the Veil Volume Lights submodule:
 
-```powershell
+```bash
 git clone --recurse-submodules https://github.com/CappleApple/veil-lights-for-tacz.git
 ```
 
+Then build with:
+
+```bash
+./gradlew test build
+```
+
+Windows:
+
 ```powershell
-./gradlew.bat test build
-./gradlew.bat runClient
+.\gradlew.bat test build
+.\gradlew.bat runClient
 ```
 
-The build produces two independent client artifacts:
-
-```text
-build/libs/veiltaczlights-1.1.jar
-veil-volume-lights/build/libs/veilvolumelights-1.0.jar
-```
-
-Runtime verification needs both dependencies and a TaCZ gun pack. In-game transform checks should cover first-person hipfire/ADS/sprint/reload/inspect/recoil, third-person players, weapon switching, repeated toggles, and world transitions.
+The build produces the TaCZ addon and the Veil Volume Lights library as separate jars.
