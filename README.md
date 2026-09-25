@@ -131,6 +131,8 @@ If an attachment does not expose a usable emitter bone, give it an explicit prof
 
 The generic light implementation lives in the separate Veil Volume Lights library. This addon only handles TaCZ-specific attachment discovery, transforms, profiles, and flashlight state.
 
+The addon also preserves stencil attachments when Veil 4.4.1 wraps a framebuffer for dynamic lighting. TaCZ uses those stencil values to clip scope blackout masks and reticles, both while holding the weapon and while aiming. Pooled targets are rebuilt when their stencil support differs from the source.
+
 The library supplies point, spot, and area lights; this addon currently uses spotlights.
 
 ## Target versions
