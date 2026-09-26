@@ -124,7 +124,8 @@ public final class TaczRenderContext {
             // real model traversal is the stable emitter transform for a frame.
             if (!submitted && owner != null && profile != null) {
                 submitted = true;
-                VeilFlashlightManager.capture(owner, gunId, attachmentId, firstPerson, profile, matrix, boneName);
+                Matrix4f emitter = AttachmentEmitterTransform.correct(attachmentId, boneName, matrix);
+                VeilFlashlightManager.capture(owner, gunId, attachmentId, firstPerson, profile, emitter, boneName);
             }
         }
     }

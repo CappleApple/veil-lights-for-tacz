@@ -127,6 +127,8 @@ That is why the light follows custom animations without needing a separate anima
 
 If an attachment does not expose a usable emitter bone, give it an explicit profile.
 
+The standard `tacz:laser_lopro` flashlight uses a different local axis. The addon corrects its `flashlight_illuminated` bone orientation while retaining the animated lens position and weapon movement.
+
 ## Veil Volume Lights
 
 The generic light implementation lives in the separate Veil Volume Lights library. This addon only handles TaCZ-specific attachment discovery, transforms, profiles, and flashlight state.
